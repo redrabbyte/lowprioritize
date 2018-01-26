@@ -3,25 +3,25 @@
   <head>
     <meta charset="utf-8">
     <title>LowprioritizeMe</title>
+    <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="Chart.js"></script>
+    <script src="util.js"></script>
+    <script src="heroes.js"></script>
+    <script src="yasp_ajax.js"></script>
+    <script src="lp_detector.js"></script>
   </head>
   <body>
-    User ID: <input id="user-id" type="text" onchange="changeUserID()">
+    User ID: <input id="user-id" type="text" onchange="changeUserID()" autocomplete="off" data-lpignore="true">
     <br>
     <button type="button" onClick="checkLatest()">check my latest match</button>
     <br>
-    <button type="button" onClick="checkCustom()">check this match</button><input id="match-id" type="text">
+    <button type="button" onClick="checkCustom()">check this match</button><input id="match-id" type="text" autocomplete="off" data-lpignore="true">
     <br>
     <div id="status-div">
     </div>
     <table border="1" cellspacing="0" id="data-table" style="display: none">
     </table>
     <canvas id="myChart" width="300px" height="30px"></canvas>
-    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-    <script src="Chart.js"></script>
-    <script src="util.js"></script>
-    <script src="heroes.js"></script>
-    <script src="yasp_ajax.js"></script>
-    <script src="lp_detector.js"></script>
     <img src="byebye.jpeg" align="left" width="590"/>
   </body>
 </html>

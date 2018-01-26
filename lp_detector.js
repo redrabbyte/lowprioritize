@@ -1,9 +1,12 @@
 var user_id = -1;
 
-user_id_field = document.getElementById('user-id');
-user_id = getCookie('user_id');
-if (user_id != -1)
-  user_id_field.value = user_id;
+window.onload = function ()
+{ 
+  user_id_field = document.getElementById('user-id');
+  user_id = getCookie('user_id');
+  if (user_id != -1)
+    user_id_field.value = user_id;
+}
   
   
 function checkLatest()
