@@ -1,9 +1,5 @@
 var user_id = -1;
 
-//roundabout way of reporting visit, don't have a cert ¯\_(ツ)_/¯
-visit = document.createElement('img');
-visit.src = 'http://www.ginerlukas.com/visitors.php';
-
 window.onload = function ()
 { 
   user_id_field = document.getElementById('user-id');
