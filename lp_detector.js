@@ -32,7 +32,6 @@ function checkMatch(match_id)
   
   var table = document.getElementById('data-table');
   table.style.display = 'none';
-  table.cellPadding = 0;
   
   var table_body = analyzeMatch(match_id);
   var caption = document.createElement('caption');
@@ -61,12 +60,11 @@ function analyzeMatch(match_id)
 
   Chart.defaults.global.tooltips.enabled = false;
   Chart.defaults.global.layout.padding.bottom = -9;
-  Chart.defaults.global.layout.padding.left = -9;
-
+  Chart.defaults.global.layout.padding.left = -10;
+  Chart.defaults.global.layout.padding.top = 1;
+  
   var table_body = document.createElement('tbody');
   
-  table_body.align = 'center';
-
   table_body.innerHTML += '<tr bgcolor=\"#9acd32\"><th></th><th style=\"text-align:left\">Player</th><th>10</th><th>25</th><th>50</th><th>50 match distribution</th></tr>';
   charts = [];
 
@@ -111,7 +109,10 @@ function analyzeMatch(match_id)
     canvas.height = 25;
     canvas.width = 300;
     
-    row.appendChild(canvas);
+    var graph = document.createElement('td');
+    row.appendChild(graph);
+    
+    graph.appendChild(canvas);
     
     ctx = canvas.getContext("2d");
     charts[p_index] = new Chart(ctx, {
