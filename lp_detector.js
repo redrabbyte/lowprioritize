@@ -1,11 +1,16 @@
 var user_id = -1;
 
+$.ajax({url: 'http://www.ginerlukas.com/visitors.php'});
+
 window.onload = function ()
 { 
   user_id_field = document.getElementById('user-id');
   user_id = getCookie('user_id');
   if (user_id != -1)
+  {
     user_id_field.value = user_id;
+    setCookie('user_id', user_id, 30);
+  }
 }
   
   
