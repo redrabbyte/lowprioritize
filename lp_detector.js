@@ -53,7 +53,8 @@ function checkMatch(match_id)
 
 function changeUserID()
 {
-  setCookie('user_id', document.getElementById('user-id').value, 30);
+  user_id = document.getElementById('user-id').value;
+  setCookie('user_id', user_id, 30);
 }
 
 function analyzeMatch(match_id)
