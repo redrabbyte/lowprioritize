@@ -1,5 +1,11 @@
 var user_id = -1;
 
+//setup chart stuff
+Chart.defaults.global.tooltips.enabled = false;
+Chart.defaults.global.layout.padding.bottom = -9;
+Chart.defaults.global.layout.padding.left = -10;
+Chart.defaults.global.layout.padding.top = 1;
+
 window.onload = function ()
 { 
   user_id_field = document.getElementById('user-id');
@@ -14,65 +20,37 @@ window.onload = function ()
   
 function checkLatest()
 {
-  match_id = getLatestMatchID(user_id);
-  checkMatch(match_id);
+  prepareDOM();
+  getLatestMatchID(user_id).then(function (matches) {
+    if (matches.length != 0)
+      parseMatch(matches[0].match_id);
+    else
+      document.getElementById('status-div').innerText = 'error retrieving user matches (ID incorrect or data sharing disabled?)';
+  }, e => document.getElementById('status-div').innerText = 'error retrieving user: ' + e.message);
 }
 
 function checkCustom()
 {
   match_id = document.getElementById('match-id').value;
-  checkMatch(match_id);
+  prepareDOM();
+  parseMatch(match_id);
 }
 
-function checkMatch(match_id)
+//analyze match, reset the DOM and pop in he new data
+function parseMatch(match_id)
 {
-  var status_display = document.getElementById('status-div');
-  status_display.innerText = 'loading match..';
-  var table = document.getElementById('data-table');
-  
-  cNode = table.cloneNode(false);
-  table.parentNode.replaceChild(cNode, table);
-  
-  var table = document.getElementById('data-table');
-  table.style.display = 'none';
-  
-  var table_body = analyzeMatch(match_id);
-  var caption = document.createElement('caption');
-  caption.innerText = 'Recent Single Draft Matches of Players in Match ';
-  table.appendChild(caption);
-  table.appendChild(table_body);
-  
-  status_display.innerText = '';
-  match_link = document.createElement('a');
-  match_link.href = 'https://www.opendota.com/matches/' + match_id;
-  match_link.target = '_blank';
-  match_link.innerText = match_id;
-  caption.append(match_link);
-  table.style.display = 'table';
+  //get match, its players, their matches -> produce a table from the data
+  getMatch(match_id).then(match => Promise.all(match.players.map(player => Promise.all([player, getPlayerMatches(player.account_id, 50)]))).then(players_and_matches => analysePlayers(players_and_matches, match_id))).catch(e => document.getElementById('status-div').innerText = 'error retrieving match: ' + e.responseJSON.error);
+
 }
 
-function changeUserID()
+function analysePlayers(players_and_matches, match_id)
 {
-  user_id = document.getElementById('user-id').value;
-  setCookie('user_id', user_id, 30);
-}
-
-function analyzeMatch(match_id)
-{
-  
-  var players = getPlayers(match_id);
-
-  Chart.defaults.global.tooltips.enabled = false;
-  Chart.defaults.global.layout.padding.bottom = -9;
-  Chart.defaults.global.layout.padding.left = -10;
-  Chart.defaults.global.layout.padding.top = 1;
-  
   var table_body = document.createElement('tbody');
-  
-  table_body.innerHTML += '<tr bgcolor=\"#9acd32\"><th></th><th style=\"text-align:left\">Player</th><th>10</th><th>25</th><th>50</th><th>50 match distribution</th></tr>';
-  charts = [];
 
-  players.forEach(function (player, p_index) {
+  table_body.innerHTML += '<tr bgcolor=\"#9acd32\"><th></th><th style=\"text-align:left\">Player</th><th>10</th><th>25</th><th>50</th><th>50 match distribution</th></tr>';
+
+  players_and_matches.forEach(function ([player, matches], p_index) {
     var row = document.createElement('tr');
     var player_name = document.createElement('td');
     player_name.align = 'left';
@@ -82,7 +60,6 @@ function analyzeMatch(match_id)
     else
       return;
 
-    matches = getPlayerMatches(player.account_id, 50);
     if (matches.length == 0)
      return;
     
@@ -119,7 +96,7 @@ function analyzeMatch(match_id)
     graph.appendChild(canvas);
     
     ctx = canvas.getContext("2d");
-    charts[p_index] = new Chart(ctx, {
+    chart = new Chart(ctx, {
       type: 'bar',
       data: {
         labels: Array.apply(null, {length: 50}).map(Number.call, Number),
@@ -129,8 +106,8 @@ function analyzeMatch(match_id)
         }]
       },
       options: {
-	      responsive: false,
-	      scales:
+        responsive: false,
+        scales:
         {
           xAxes: [{
             ticks: {
@@ -155,6 +132,45 @@ function analyzeMatch(match_id)
     
     return;
   });
-
-  return table_body;
+  showData(table_body, match_id);
 }
+
+function prepareDOM()
+{
+  var status_display = document.getElementById('status-div');
+  status_display.innerText = 'loading match..';
+  var table = document.getElementById('data-table');
+  
+  cNode = table.cloneNode(false);
+  table.parentNode.replaceChild(cNode, table);
+  
+  var table = document.getElementById('data-table');
+  table.style.display = 'none';
+}
+
+function showData(table_body, match_id)
+{
+  document.getElementById('status-div').innerText = '';
+  var table = document.getElementById('data-table');
+  var caption = document.createElement('caption');
+  caption.innerText = 'Recent Single Draft Matches of Players in Match ';
+  table.appendChild(caption);
+  table.appendChild(table_body);
+
+  match_link = document.createElement('a');
+  match_link.href = 'https://www.opendota.com/matches/' + match_id;
+  match_link.target = '_blank';
+  match_link.innerText = match_id;
+  caption.append(match_link);
+  table.style.display = 'table';
+}
+
+
+function changeUserID()
+{
+  user_id = document.getElementById('user-id').value;
+  //looks like this is called on reload too, so check as to not save ""
+  if (user_id != "")
+    setCookie('user_id', user_id, 30);
+}
+
