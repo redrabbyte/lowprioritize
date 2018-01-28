@@ -11,6 +11,7 @@ function getLatestMatchID(player_id) {
 }
 
 function getPlayerMatches(player_id, count) {
+  //need to resolve errors for Promise.all
   if (player_id == null)
     return Promise.resolve([]);
   

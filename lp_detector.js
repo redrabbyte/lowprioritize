@@ -48,7 +48,7 @@ function analysePlayers(players_and_matches, match_id)
 {
   var table_body = document.createElement('tbody');
 
-  table_body.innerHTML += '<tr bgcolor=\"#9acd32\"><th></th><th style=\"text-align:left\">Player</th><th>10</th><th>25</th><th>50</th><th>50 match distribution</th></tr>';
+  table_body.innerHTML += '<tr><th></th><th style=\"text-align:left\">Player</th><th>10</th><th>25</th><th>50</th><th>50 match distribution</th></tr>';
 
   players_and_matches.forEach(function ([player, matches], p_index) {
     var row = document.createElement('tr');
