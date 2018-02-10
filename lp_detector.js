@@ -15,8 +15,38 @@ window.onload = function ()
     user_id_field.value = user_id;
     setCookie('user_id', user_id, 30);
   }
+  
+  match_id = findGetParameter('m');
+  if (match_id != null)
+    document.getElementById('match-id').value = match_id;
+}
+
+window.onpopstate = function (event)
+{
+  var state = event.state;
+  if (state != null && state.m != undefined)
+    document.getElementById('match-id').value = state.m;
 }
   
+
+function updateURL(match_id)
+{
+  path = window.location.pathname;
+  path = path[path.length - 1] == '/' ? path.substring(0,path.length-1) : path;
+  history.pushState({ m: match_id }, 'Lowprioritize' + match_id, path + '/?m=' + match_id);
+  document.getElementById('match-id').value = match_id;
+}
+
+$(window).on('popstate', function(event) {
+    var state = event.originalEvent.state;
+    
+    if (state) {
+        selectColor( state.selectedColor );
+    }
+    
+    updateUrlBar();
+});
+
   
 function checkLatest()
 {
@@ -39,6 +69,7 @@ function checkCustom()
 //analyze match, reset the DOM and pop in he new data
 function parseMatch(match_id)
 {
+  updateURL(match_id);
   //get match, its players, their matches -> produce a table from the data
   getMatch(match_id).then(match => Promise.all(match.players.map(player => Promise.all([player, getPlayerMatches(player.account_id, 50)]))).then(players_and_matches => analysePlayers(players_and_matches, match_id))).catch(e => document.getElementById('status-div').innerText = 'error retrieving match: ' + e.responseJSON.error);
 
@@ -169,7 +200,7 @@ function showData(table_body, match_id)
 function changeUserID()
 {
   user_id = document.getElementById('user-id').value;
-  //looks like this is called on reload too, so check as to not save ""
+  //looks like this is called on reload too, check so as to not save ""
   if (user_id != "")
     setCookie('user_id', user_id, 30);
 }
